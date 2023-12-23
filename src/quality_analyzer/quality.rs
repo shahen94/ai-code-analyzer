@@ -25,6 +25,8 @@ impl QualityAnalyzer {
     let prompt = format!(
       r"
       Analyze please this code, providing information about quality of this code, and how it can be improved.
+
+      ###############################################
       File path that can be helpful for you: {}
       Code:
       {}
@@ -34,7 +36,7 @@ impl QualityAnalyzer {
       self.file,
       file_content.unwrap(),
     );
-    let result = self.engine.ask(&prompt);
+    let result = self.engine.ask(&prompt, None);
 
     result
   }

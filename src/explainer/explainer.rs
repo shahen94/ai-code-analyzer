@@ -24,6 +24,11 @@ impl Explainer {
     // Multiline prompt
     let prompt = format!(
       r"
+      Explain me please code that I'll provide below.
+      Explain in a way that I can understand it, and I'll be able to explain it to other people.
+      Explain purpose of this file, code, blocks, functions, variables, and other things that you can find in this code.
+
+      ###############################################
       File path that can be helpful for you: {}
       Code:
       {}
@@ -33,7 +38,7 @@ impl Explainer {
       self.file,
       file_content.unwrap(),
     );
-    let result = self.engine.ask(&prompt);
+    let result = self.engine.ask(&prompt, None);
 
     result
   }

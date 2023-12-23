@@ -6,6 +6,7 @@ mod explainer;
 mod ai;
 mod env;
 mod quality_analyzer;
+mod refactor;
 
 use explainer::Explainer;
 use quality_analyzer::QualityAnalyzer;
@@ -15,14 +16,7 @@ use cmd::{Cmd, AnalyzeType};
 fn main() {
   let cmd = Cmd::parse();
 
-  // action to enum
-  let action =
-    match cmd.action.as_str() {
-      "explain" => AnalyzeType::Explain,
-      "quality" => AnalyzeType::AnalyzeQuality,
-      "analyze-all" => AnalyzeType::AnalyzeAll,
-      _ => AnalyzeType::Explain,
-    };
+  let action = AnalyzeType::from_str(&cmd.action);
   
   match action {
     AnalyzeType::Explain => {
@@ -52,5 +46,12 @@ fn main() {
       println!("\n\nAnalyze Result \n");
       println!("{}", quality_result);
     },
+    AnalyzeType::Refactor => {
+      println!("Refactoring the code... \n");
+      let refactor = refactor::RefactorRequest::new(cmd.file);
+      let result = refactor.request_refactor();
+
+      println!("{}", result);
+    }
   }
 }

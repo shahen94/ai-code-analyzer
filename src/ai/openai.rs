@@ -18,26 +18,31 @@ impl AI {
         AI { engine: openai }
     }
 
-    fn build_message(&self, message: &str) -> Vec<Message> {
-      let mut messages = vec![];
-      let system_message = Message {
+    fn build_message(&self, context: &mut Vec<Message>, message: &str) -> Vec<Message> {
+        let mut messages = vec![];
+        let system_message = Message {
           role: Role::System,
-          content: "You're code explainer bot.
-          You're explaining given code, what it's doing, for what code is responsible, purpose of code.".to_string(),
+          content: "You're code explainer,analyzer bot, you have very helpful and kind personality.
+          You can analyze code, explain and refactor code to make it better, and keep best practices.
+          ".to_string(),
       };
-      let user_message = Message {
-        role: Role::User,
-        content: message.to_string(),
-      };
-      messages.push(system_message);
-      messages.push(user_message);
+        let user_message = Message {
+            role: Role::User,
+            content: message.to_string(),
+        };
+        messages.push(system_message);
+        messages.append(context);
 
-      return messages;
-  }
+        messages.push(user_message);
+
+        return messages;
+    }
 }
 
 impl AiQuestionable for AI {
-    fn ask(&self, query: &str) -> String {
+    fn ask(&self, query: &str, context: Option<Vec<Message>>) -> String {
+        let mut initial_context = context.ok_or(Vec::<Message>::new()).unwrap();
+
         let body = ChatBody {
             model: "gpt-3.5-turbo".to_string(),
             max_tokens: Some(1000),
@@ -50,8 +55,9 @@ impl AiQuestionable for AI {
             frequency_penalty: None,
             logit_bias: None,
             user: None,
-            messages: self.build_message(query),
+            messages: self.build_message(&mut initial_context, query),
         };
+
         let rs = self.engine.chat_completion_create(&body);
         let choices = rs.unwrap().choices;
         let message = choices[0].message.as_ref().unwrap();
